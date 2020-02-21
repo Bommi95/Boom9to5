@@ -1,0 +1,351 @@
+---
+title: "Portfolio Optimization"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 1
+
+In this project, we are going to form the optimal portfolio using the Sharpe ratio with historical and examine its performance over a test period. First of all, we load some packages and perform some data cleaning:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(lubridate)
+
+# part 1
+# load the data
+data.x <- read.csv2('asset_data.txt', sep = ',', stringsAsFactors=F)
+# extract only theobservations where the federal funds rate is available
+data.x <- na.omit(data.x)
+# convert datatypes
+data.x$date <- as.Date(data.x$date)
+data.x$close.spy <- as.numeric(data.x$close.spy)
+data.x$close.tlt <- as.numeric(data.x$close.tlt)
+data.x$fed.rate <- as.numeric(data.x$fed.rate)
+# check head and tail
+head(data.x)
+tail(data.x)
+# graph the federal funds interest rate as a time series
+ggplot(data.x, aes(date, fed.rate)) + geom_line() +
+  xlab("") + ylab("weekly fed rate")
+```
+
+We find that:
+
+i) the time series starts on 2003-01-08 and ends on 2014-10-29;
+
+ii) the federal funds interest rates were around 1% before 2005, increased to over 5% in 2007, and decreades sharply to zero after the most recent financial crisis.
+
+## Part 2
+
+We split the data into training set and test set based on whether they are before or in 2014:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# part 2
+# generate a column for year
+data.x <- as_tibble(data.x)
+data.x$year <- year(data.x$date)
+# train set: all obs before 2014
+train_set <- subset(data.x, year<2014)
+nrow(train_set)
+# test set: all obs in 2014
+test_set <- subset(data.x, year==2014)
+nrow(test_set)
+```
+
+We find that there are 570 observations in the training set and 43 observations in the test set.
+
+## Part 3
+
+We convert the federal rate to decimal and compute the returns for both assets:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+### from now on, work on train set###
+# part 3
+# fed rate to decimal
+train_set$fed.rate <- train_set$fed.rate / 100
+# SP500 returns
+train_set$l_sp500 <- c(NA, head(train_set$close.spy, -1))
+train_set$r_sp500 <- train_set$close.spy / train_set$l_sp500 - 1
+# bonds returns
+train_set$l_bonds <- c(NA, head(train_set$close.tlt, -1))
+train_set$r_bonds <- train_set$close.tlt / train_set$l_bonds - 1
+# y = 0
+train_set$zeros <- 0
+# plot all out
+ggplot() + 
+  geom_line(data = train_set, aes(x = date, y = r_sp500), color = "red") +
+  geom_line(data = train_set, aes(x = date, y = r_bonds), color = "blue") +
+  geom_line(data = train_set, aes(x = date, y = zeros), color = "green", linetype = "dashed") +
+  xlab('data_date') + ylab('total returns') 
+```
+
+The red line is for SP500 and bule for tresury bonds. We can see that:
+
+i) they are both fluctuate around zero line;
+
+ii) they seem to be negatively related: one gets peak while the other tends to be at the bottom.
+
+## Part 4
+
+The QQ plots for SP500 is:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# part 4
+# normal quantile plots
+# for sp500
+qqnorm(train_set$r_sp500, pch = 1, frame = FALSE)
+qqline(train_set$r_sp500, col = "steelblue", lwd = 2)
+```
+
+For bonds:
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# for bonds
+qqnorm(train_set$r_bonds, pch = 1, frame = FALSE)
+qqline(train_set$r_bonds, col = "steelblue", lwd = 2)
+```
+
+From these two figures we can see that the normality assumption seems to be satisified for both series.
+
+## Part 5
+
+The correlation between two asset returns over the whole train set is -0.3439, and the scatter plot also indicate a negative relationship between these two:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# part 5
+# correlation all time
+cor(train_set$r_sp500, train_set$r_bonds, use = "complete.obs")
+# scatterplot
+ggplot() + geom_point(data = train_set, aes(x = r_sp500, y = r_bonds)) +
+  xlab('r_sp500') + ylab('r_bonds')
+```
+
+The rolling-window correlation is calculated as follows:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# correlation rolling window
+train_set$rolling_cor <- NA
+window_length <- 24
+# using the last day of the window
+for (i in (1+window_length):nrow(train_set)){
+  sp500 <- train_set$r_sp500[(i-window_length+1):i]
+  bonds <- train_set$r_bonds[(i-window_length+1):i]
+  res <- cor(sp500, bonds)
+  train_set$rolling_cor[i] <- res
+}
+# plot it out
+ggplot(train_set, aes(date, rolling_cor)) + geom_line() +
+  xlab("") + ylab("rolling correlation")
+```
+
+The rolling-window correlation is a better way to describe the relationship between two assets. In different economic conditions, the relationship between stock and bond can also vary: for xample, in the financial crisis in 2008, the stock price decreased and people tended to buy more tresury bonds, which resulted in a larger negative rolling correlation between these two assets. On the other hand, the overall correlation describes the average relationship between two assets across the sample period, and hence is less informative.
+
+## Part 6
+
+The Sharpe ratios for SP500 are calculated step-by-step:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# part 6
+# first, sp500
+# step 0
+# step 1
+train_set$l_frate <- c(NA, head(train_set$fed.rate, -1))
+train_set$e_t <- train_set$r_sp500 - train_set$l_frate/52
+# step 2
+train_set$g_t <- NA
+train_set$g_t[1] <- 100
+for (i in 2:nrow(train_set)){
+  train_set$g_t[i] <- train_set$g_t[i-1] * (1 + train_set$e_t[i])
+}
+# step 3
+n_years <- (nrow(train_set)-1) / 52
+# step 4
+CAGR <- (train_set$g_t[nrow(train_set)]/train_set$g_t[1])^(1/n_years) - 1
+# step 5
+nu <- 52^0.5 * sd(train_set$e_t, na.rm = TRUE)
+# step 6
+SR <- CAGR / nu
+SR
+```
+
+We repeat it for bonds:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# second, bonds
+train_set$e_t <- train_set$r_bonds - train_set$l_frate/52
+# step 2
+train_set$g_t <- NA
+train_set$g_t[1] <- 100
+for (i in 2:nrow(train_set)){
+  train_set$g_t[i] <- train_set$g_t[i-1] * (1 + train_set$e_t[i])
+}
+# step 3
+n_years <- (nrow(train_set)-1) / 52
+# step 4
+CAGR <- (train_set$g_t[nrow(train_set)]/train_set$g_t[1])^(1/n_years) - 1
+# step 5
+nu <- 52^0.5 * sd(train_set$e_t, na.rm = TRUE)
+# step 6
+SR <- CAGR / nu
+SR
+```
+
+So the Sharpe ratio for SP500 is 0.2807, higher than -0.0110 for bonds. Hence SP500 ETF is a better investment: it achieves a better balance between expected returns and risks.
+
+## Part 7
+
+The above calculation procedure can be generalized and wrapped up in a function:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# part 7
+# the main function
+sr_portfolio <- function(x, a1, a2, fr){
+  n_obs <- length(a1)
+  y_t_1 <- c(NA, head(fr, -1))
+  srs <- rep(NA, length(x))
+  for (ix in 1:length(x)){
+    xx <- x[ix]
+    # step 0
+    r_t <- xx*a1 + (1-xx)*a2
+    # step 1
+    e_t <- r_t - y_t_1/52
+    # step 2
+    g_t <- rep(NA, n_obs)
+    g_t[1] <- 100
+    for (i in 2:n_obs){
+      g_t[i] <- g_t[i-1] * (1 + e_t[i])
+    }
+    # step 3
+    n_years <- (n_obs-1) / 52
+    # step 4
+    CAGR <- (g_t[n_obs]/g_t[1])^(1/n_years) - 1
+    # step 5
+    nu <- 52^0.5 * sd(e_t, na.rm = TRUE)
+    # step 6
+    SR <- CAGR / nu
+    srs[ix] <- SR
+  }
+  return(srs)
+}
+# recompute SR for part 6
+x  <- c(0.0, 1.0)
+a1 <- train_set$r_sp500
+a2 <- train_set$r_bonds
+fr <- train_set$fed.rate
+sr_portfolio(x, a1, a2, fr)
+```
+
+We test its correctness with the portfolio in part 6 and find that they produce the same results. Next, we plot the function for different weights:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# plot it as a function of x
+base <- ggplot(data.frame(x = c(0, 1)), aes(x))
+base + stat_function(fun = sr_portfolio, 
+      args = list(a1 = train_set$r_sp500, a2=train_set$r_bonds, fr=train_set$fed.rate)) +
+  xlab("x") + ylab("portfolio returns")
+```
+
+It can be seen that the portfolio returns first increase as x increases from x=0 and then decrease until x=1 and there is a maxiumum around x=0.6.
+
+## Part 8
+
+We find the optimum weights as:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# part 8
+x_opt <- optimize(sr_portfolio, c(0, 1), tol=1e-5, maximum = TRUE,
+                  a1 = train_set$r_sp500, a2=train_set$r_bonds, fr=train_set$fed.rate)
+x_opt
+```
+
+So the optimal weight is x=0.5958 and the maximum Sharpe ratio is 0.3634. Recall that SP500 only gives us a Sharpe ratio of 0.2807 and bonds only gives us -0.0110, the combined portfolio is a better investment.
+
+## Part 9
+
+Now, we test the performance of over the observations in 2014:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+### from now on, work on test set###
+# part 9
+# redo part 3
+# fed rate to decimal
+test_set$fed.rate <- test_set$fed.rate / 100
+# SP500 returns
+test_set$l_sp500 <- c(NA, head(test_set$close.spy, -1))
+test_set$r_sp500 <- test_set$close.spy / test_set$l_sp500 - 1
+# bonds returns
+test_set$l_bonds <- c(NA, head(test_set$close.tlt, -1))
+test_set$r_bonds <- test_set$close.tlt / test_set$l_bonds - 1
+# optimal portfolio
+test_set$r_portf <- x_opt$maximum[1] * test_set$r_sp500 + (1 - x_opt$maximum[1]) * test_set$r_bonds
+# redo part 6
+# first, sp500
+# step 0
+# step 1
+test_set$l_frate <- c(NA, head(test_set$fed.rate, -1))
+test_set$e_t <- test_set$r_sp500 - test_set$l_frate/52
+# step 2
+test_set$g_t <- NA
+test_set$g_t[1] <- 100
+for (i in 2:nrow(test_set)){
+  test_set$g_t[i] <- test_set$g_t[i-1] * (1 + test_set$e_t[i])
+}
+
+# second, bonds
+test_set$e_t1 <- test_set$r_bonds - test_set$l_frate/52
+# step 2
+test_set$g_t1 <- NA
+test_set$g_t1[1] <- 100
+for (i in 2:nrow(test_set)){
+  test_set$g_t1[i] <- test_set$g_t1[i-1] * (1 + test_set$e_t1[i])
+}
+
+# third, optimal portfolio
+# second, bonds
+test_set$e_t2 <- test_set$r_portf - test_set$l_frate/52
+# step 2
+test_set$g_t2 <- NA
+test_set$g_t2[1] <- 100
+for (i in 2:nrow(test_set)){
+  test_set$g_t2[i] <- test_set$g_t2[i-1] * (1 + test_set$e_t2[i])
+}
+
+# plot all out
+test_set$const <- 100
+ggplot() + 
+  geom_line(data = test_set, aes(x = date, y = g_t), color = "red") +
+  geom_line(data = test_set, aes(x = date, y = g_t1), color = "blue") +
+  geom_line(data = test_set, aes(x = date, y = g_t2), color = "yellow") +
+  geom_line(data = test_set, aes(x = date, y = const), color = "green", linetype = "dashed") +
+  xlab('data_date') + ylab('excess returns index')
+```
+
+Still, we use red for SP500, blue for bonds, while the yellow line is for the combined portfolio with optimal weight found in part 8. We find that:
+
+i) for most periods, the three time series are above 100, i.e., they mostly yield positive excess returns;
+
+ii) the bonds perform the best, following by the combined portfolio while the SP500 performs the worst.
+
+## Part 10
+
+The money one would earn in addition to the risk free rate at the end of 2014 with \$100 at the beginning of 2014 is:
+
+```{r, echo=TRUE, warning=FALSE, include=TRUE, message=FALSE}
+# part 10
+cat('sp500 only', test_set$g_t[nrow(test_set)], '\n')
+cat('bonds only', test_set$g_t1[nrow(test_set)], '\n')
+cat(' portfolio', test_set$g_t2[nrow(test_set)], '\n')
+```
+
+That is, we get 108 with SP500, 116 with bonds, and 112 with combined portfolio. The portfolio seems to underperform in the test set. This might because the optimal weight we get from the test set is for the entire period over different economic conditions, while the test set is just for one year, where economic condition matters more. To get a better performance, we should take the economic situation into account and design different portfolios for different situations.
+
+
+
+
+
+
+
