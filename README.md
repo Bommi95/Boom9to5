@@ -13,7 +13,11 @@ I computed the rolling window correlation with a window of 24 weeks of data (i.e
   <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/rolling%20window%20cor.png">
 </p>  
  The Sharpe ratio calculation assumes that returns are normally distributed. Before computing it, I check the assumption of normal distribution by construct two normal quantile plots, one for training set returns of each assets.  
-! [Alt Text]("https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/return%20formula.PNG")
+
+| ![VideoBlocks](https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/qq%20for%20stock.png) | ![AudioBlocks](https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/qq%20for%20bonds.png) |
+|:---:|:---:|
+| S&P500 | US Treasury Bond |
+
 
 I computed sharpe ratio for each assets on training set and create a function which takes a vector of portfolio weight and a vector of the return of both assets as input, using equation below to obtain the returns for the portfolio. 
    <p align="center">
