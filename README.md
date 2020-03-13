@@ -15,7 +15,7 @@ I computed the rolling window correlation with a window of 24 weeks of data (i.e
 
 I computed sharpe ratio for each assets on training set and create a function which takes a vector of portfolio weight and a vector of the return of both assets as input, using equation below to obtain the returns for the portfolio. 
    <p align="center">
-  <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/return%20formula.png">
+  <img width="406" height="51" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/return%20formula.PNG">
 </p> 
 For each weight value in my vector x, the function compute the Sharpe ratio for the corresponding portfolio. I used STAT_FUNCTION() to plot the result to see which portfolio weight produces the maximum Sharpe ratio. 
    <p align="center">
