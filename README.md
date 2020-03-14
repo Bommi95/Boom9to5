@@ -8,6 +8,11 @@ The data are splited into training and testing subsets.  The training data is us
    <p align="center">
   <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/total%20returns.png">
 </p>  
+I computed the general correlation between the S&P500 and long term treasury bond returns in the training set and constructed a scatterplot to present the relationship.
+   <p align="center">
+  <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/stock%20bonds%20cor.png">
+</p>  
+
 I computed the rolling window correlation with a window of 24 weeks of data (i.e., weeks 1 to 24, weeks 2 to 25...) and constructed a time series plot of the rolling window correlation with each point plotted on the last day of the window.
    <p align="center">
   <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/rolling%20window%20cor.png">
