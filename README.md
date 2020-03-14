@@ -22,7 +22,7 @@ I computed the rolling window correlation with a window of 24 weeks of data (i.e
    <p align="center">
   <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/rolling%20window%20cor.png">
 </p>  
- The rolling-window correlation is a better way to describe the relationship between two assets. In different economic conditions, the relationship between stock and bond can also vary: for xample, in the financial crisis in 2008, the stock price decreased and people tended to buy more tresury bonds, which resulted in a larger negative rolling correlation between these two assets. On the other hand, the overall correlation describes the average relationship between two assets across the sample period, and hence is less informative. 
+ The rolling-window correlation is a better way to describe the relationship between two assets. In different economic conditions, the relationship between stock and bond can also vary: for example, in the financial crisis in 2008, the stock price decreased and people tended to buy more tresury bonds, which resulted in a larger negative rolling correlation between these two assets. On the other hand, the overall correlation describes the average relationship between two assets across the sample period, and hence is less informative. 
  
 ### Assumption check
 
@@ -30,7 +30,8 @@ I computed the rolling window correlation with a window of 24 weeks of data (i.e
 
 | ![VideoBlocks](https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/qq%20for%20stock.png) | ![AudioBlocks](https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/qq%20for%20bonds.png) |
 |:---:|:---:|
-| S&P500 | US Treasury Bond |
+| S&P500 | US Treasury Bond | 
+
 From these two figures we can see that the normality assumption seems to be satisified for both series.
 
 ### Sharpe Ratio Optimization
