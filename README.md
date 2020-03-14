@@ -4,7 +4,7 @@ Given the uncertainty about the future performance of ﬁnancial markets, invest
 
 The data for the two assets were downloaded from Google Finance (ticker symbols: SPY, TLT) and the federal funds interest rate, representing the risk free rate, was taken from the U.S. Federal Reserve Bank website.
 
-The data are splited into training and testing subsets.  The training data is used to compute the portfolio weights and testing set is used to evaluate our portfolio. I computed the rate of return for the S&P 500 and long term treasury bonds ETF asset, and constructed a time series of data with the returns for both assets plotted.
+The data are splited into training and testing subsets.  The training data is used to compute the portfolio weights and testing set is used to evaluate our portfolio. I computed the rate of return for the S&P 500 and long term treasury bonds ETF asset, and constructed a time series of data with the returns for both assets plotted.Red line for S&P500 and blue line for treasury bonds.
    <p align="center">
   <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/total%20returns.png">
 </p>  
@@ -30,4 +30,10 @@ For each weight value in my vector x, the function compute the Sharpe ratio for 
 
 It can be seen that the portfolio returns reach its maximum when weights allocation for S&P 500 around 0.6 (x=0.6) is the optimal weight. The result computed by optimize() is similar: x = 0.5958418
 
-Lastly, I evaluated my portfolio using the test set data. I compared the result three strategies: investing only in the S&P500, investing only in long term treasury bonds, and investing in the combined portfolio with the optimal weight.
+Lastly, I evaluated my portfolio using the test set data. I compared the result three strategies: investing only in the S&P500, investing only in long term treasury bonds, and investing in the combined portfolio with the optimal weight. 
+   <p align="center">
+  <img width="480" height="384" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/test%20set.png">
+</p> 
+Still, we use red for SP500, blue for bonds, while the yellow line is for the combined portfolio with optimal weight. We find that:
+i)	for most periods, the three time series are above 100, i.e., they mostly yield positive excess returns;
+ii)	the bonds perform the best, following by the combined portfolio while the SP500 performs the worst.
