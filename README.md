@@ -10,7 +10,7 @@ The data are splited into training and testing subsets.  The training data is us
 </p>  
 I computed the general correlation between the S&P500 and long term treasury bond returns in the training set and constructed a scatterplot to present the relationship.
    <p align="center">
-  <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/stock%20bonds%20cor.png">
+  <img width="480" height="384" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/cor%20stock%20bonds.png">
 </p>  
 
 I computed the rolling window correlation with a window of 24 weeks of data (i.e., weeks 1 to 24, weeks 2 to 25...) and constructed a time series plot of the rolling window correlation with each point plotted on the last day of the window.
