@@ -8,6 +8,8 @@ The data are splited into training and testing subsets.  The training data is us
    <p align="center">
   <img width="460" height="300" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/total%20returns.png">
 </p>  
+
+### Examine the correlation 
 I computed the general correlation between the S&P500 and long term treasury bond returns in the training set and constructed a scatterplot to present the relationship. The correlation between two asset returns over the whole train set is -0.3439, and the scatter plot also indicate a negative relationship between these two assets
    <p align="center">
   <img width="480" height="384" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/cor%20stock%20bonds.png">
@@ -19,14 +21,16 @@ I computed the rolling window correlation with a window of 24 weeks of data (i.e
 </p>  
  The rolling-window correlation is a better way to describe the relationship between two assets. In different economic conditions, the relationship between stock and bond can also vary: for xample, in the financial crisis in 2008, the stock price decreased and people tended to buy more tresury bonds, which resulted in a larger negative rolling correlation between these two assets. On the other hand, the overall correlation describes the average relationship between two assets across the sample period, and hence is less informative. 
  
+### Assumption check
 
  The Sharpe ratio calculation assumes that returns are normally distributed. Before computing it, I check the assumption of normal distribution by construct two normal quantile plots, one for training set returns of each assets.  
 
 | ![VideoBlocks](https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/qq%20for%20stock.png) | ![AudioBlocks](https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/qq%20for%20bonds.png) |
 |:---:|:---:|
 | S&P500 | US Treasury Bond |
+From these two figures we can see that the normality assumption seems to be satisified for both series.
 
-
+### Sharpe Ratio Optimization
 I computed sharpe ratio for each assets on training set and create a function which takes a vector of portfolio weight and a vector of the return of both assets as input, using equation below to obtain the returns for the portfolio. 
    <p align="center">
   <img width="380" height="41" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/return%20formula.PNG">
@@ -38,6 +42,7 @@ For each weight value in my vector x, the function compute the Sharpe ratio for 
 
 It can be seen that the portfolio returns reach its maximum when weights allocation for S&P 500 around 0.6 (x=0.6) is the optimal weight. The result computed by optimize() is similar: x = 0.5958418
 
+### Portfolio Evaluation
 Lastly, I evaluated my portfolio using the test set data. I compared the result three strategies: investing only in the S&P500, investing only in long term treasury bonds, and investing in the combined portfolio with the optimal weight. 
    <p align="center">
   <img width="480" height="384" src="https://github.com/Bommi95/ETF-Portfolio-Optimization/blob/master/test%20set.png">
