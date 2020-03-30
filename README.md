@@ -53,4 +53,21 @@ Lastly, I evaluated my portfolio using the test set data. I compared the result 
 </p> 
 Still, we use red for SP500, blue for bonds, while the yellow line is for the combined portfolio with optimal weight. We find that:
 i)	for most periods, the three time series are above 100, i.e., they mostly yield positive excess returns;
-ii)	the bonds perform the best, following by the combined portfolio while the SP500 performs the worst.
+ii)	the bonds perform the best, following by the combined portfolio while the SP500 performs the worst. 
+
+
+### Our Portfoilo Performance on the Test set
+
+The excess returns index can be interpreted as follows: if you invested in $100 in at time t = 1, the index value at time T represents how much you have earned in addition to (i.e., in excess of) the risk free interest rate. 
+
+If we invested $100 in each asset (portfolio, all in long term treasury bonds, or all in S&P500) in the ﬁrst week of January, 2014 , how much would we have at the end of the test set period for each asset in addition to the risk-free interest rate? Let's find out whether our portfolio perform well in the test set.
+
+```R
+cat('sp500 only', test_set$g_t[nrow(test_set)], '\n')
+## sp500 only 107.8763
+cat('bonds only', test_set$g_t1[nrow(test_set)], '\n')
+## bonds only 116.376
+cat(' portfolio', test_set$g_t2[nrow(test_set)], '\n')
+##  portfolio 111.6367
+```
+That is, we get 108 with SP500, 116 with bonds, and 112 with combined portfolio. The portfolio seems to underperform in the test set. This might because the optimal weight we get from the test set is for the entire period over different economic conditions, while the test set is just for one year, where economic condition matters more. To get a better performance, we should take the economic situation into account and design different portfolios for different situations.
